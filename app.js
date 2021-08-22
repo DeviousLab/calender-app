@@ -4,6 +4,7 @@ let events = localStorage.getItem('events') ? JSON.parse(localStorage.getItem('e
 
 const calendar = document.querySelector('#calendar');
 const newEventModal = document.querySelector('#newEventModal');
+const deleteEventModal = document.querySelector('#deleteEventModal');
 const backdrop = document.querySelector('#modalBackDrop');
 const eventTitleInput = document.querySelector('#eventTitleInput');
 const weekdays = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
@@ -12,7 +13,8 @@ function openModal(date) {
     clicked = date;
     const eventForDay = events.find(e => e.date === clicked);
     if (eventForDay) {
-        console.log('Event already exists');
+        document.querySelector("#eventText").innerText = eventForDay.title;
+		deleteEventModal.style.display = 'block';
     } else {
         newEventModal.style.display = 'block'
     }
@@ -54,6 +56,9 @@ function load() {
 		if (i > previousDays) {
 			daySquare.innerText = i - previousDays;
 			const eventForDay = events.find(e => e.date === dayString);
+			if(i - previousDays === day && nav === 0) {
+				daySquare.id = 'currentDay';
+			}
 			if (eventForDay) {
 				const eventDiv = document.createElement('div');
 				eventDiv.classList.add('event');
@@ -71,6 +76,7 @@ function load() {
 function closeModal() {
 	eventTitleInput.classList.remove('error');
 	newEventModal.style.display = 'none';
+	deleteEventModal.style.display = 'none';
 	backdrop.style.display = 'none';
 	eventTitleInput.value = '';
 	clicked = null;
@@ -92,6 +98,12 @@ function saveEvent() {
 	}
 }
 
+function deleteEvent() {
+	events = events.filter(e => e.date !== clicked);
+	localStorage.setItem('events', JSON.stringify(events));
+	closeModal();
+}
+
 function buttons() {
     document.querySelector('#nextButton').addEventListener('click', () => {
         nav++;
@@ -101,8 +113,9 @@ function buttons() {
         nav--;
         load();
     });
-	document.querySelector('#saveButton').addEventListener('click', saveEvent)
-    document.querySelector('#cancelButton').addEventListener('click', closeModal)
+	document.querySelector('#saveButton').addEventListener('click', saveEvent);
+    document.querySelector('#cancelButton').addEventListener('click', closeModal);
+	document.querySelector('#deleteButton').addEventListener('click', saveEvent);
 }
 
 load();
