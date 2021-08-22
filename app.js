@@ -49,10 +49,18 @@ function load() {
 	for (let i = 1; i <= previousDays + daysInMonth; i++) {
 		const daySquare = document.createElement('div');
 		daySquare.classList.add('day');
+		const dayString = `${i - previousDays}/${month + 1}/${year}`;
 
 		if (i > previousDays) {
 			daySquare.innerText = i - previousDays;
-			daySquare.addEventListener('click', () => openModal(`${i - previousDays}/${month + 1}/${year}`));
+			const eventForDay = events.find(e => e.date === dayString);
+			if (eventForDay) {
+				const eventDiv = document.createElement('div');
+				eventDiv.classList.add('event');
+				eventDiv.innerText = eventForDay.title;
+				daySquare.appendChild(eventDiv);
+			} 
+			daySquare.addEventListener('click', () => openModal(dayString));
 		} else {
 			daySquare.classList.add('padding');
 		}
