@@ -3,7 +3,21 @@ let clicked = null;
 let events = localStorage.getItem('events') ? JSON.parse(localStorage.getItem('events')) : [];
 
 const calendar = document.querySelector('#calendar');
+const newEventModal = document.querySelector('#newEventModal');
+const backdrop = document.querySelector('#modalBackDrop');
+const eventTitleInput = document.querySelector('#eventTitleInput');
 const weekdays = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
+
+function openModal(date) {
+    clicked = date;
+    const eventForDay = events.find(e => e.date === clicked);
+    if (eventForDay) {
+        console.log('Event already exists');
+    } else {
+        newEventModal.style.display = 'block'
+    }
+	backdrop.style.display = 'block';
+}
 
 function load() {
 	const date = new Date();
@@ -38,11 +52,35 @@ function load() {
 
 		if (i > previousDays) {
 			daySquare.innerText = i - previousDays;
-			daySquare.addEventListener('click', (e) => {});
+			daySquare.addEventListener('click', () => openModal(`${i - previousDays}/${month + 1}/${year}`));
 		} else {
 			daySquare.classList.add('padding');
 		}
 		calendar.appendChild(daySquare);
+	}
+}
+
+function closeModal() {
+	eventTitleInput.classList.remove('error');
+	newEventModal.style.display = 'none';
+	backdrop.style.display = 'none';
+	eventTitleInput.value = '';
+	clicked = null;
+	load();
+}
+
+function saveEvent() {
+	if (eventTitleInput.value) {
+		eventTitleInput.classList.remove('error');
+
+		events.push({
+			date: clicked,
+			title: eventTitleInput.value
+		});
+		localStorage.setItem('events', JSON.stringify(events));
+		closeModal();
+	} else {
+		eventTitleInput.classList.add('error');
 	}
 }
 
@@ -55,6 +93,8 @@ function buttons() {
         nav--;
         load();
     });
+	document.querySelector('#saveButton').addEventListener('click', saveEvent)
+    document.querySelector('#cancelButton').addEventListener('click', closeModal)
 }
 
 load();
